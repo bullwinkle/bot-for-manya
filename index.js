@@ -1,10 +1,10 @@
-const TelegramBot = require('node-telegram-bot-api');
-
-const bot = new TelegramBot(process.env.TG_BOT_TOKEN, { polling: true });
-
-bot.on('message', (msg) => {
-  const chatId = msg.chat.id;
-  const messageText = msg.text;
-
-  bot.sendMessage(chatId, `You said: ${messageText}`);
+"use strict";
+var _a;
+exports.__esModule = true;
+var TelegramBot = require("node-telegram-bot-api");
+var bot = new TelegramBot((_a = process.env.TG_BOT_TOKEN) !== null && _a !== void 0 ? _a : '', { polling: true });
+bot.on('message', function (msg) {
+    var chatId = msg.chat.id;
+    var messageText = msg.text;
+    bot.sendMessage(chatId, "".concat(process.env.NODE_ENV === 'production' ? 'Remote' : 'Local', " said: ").concat(messageText));
 });
