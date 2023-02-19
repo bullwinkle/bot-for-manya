@@ -1,25 +1,60 @@
-import express from "express";
-import bodyParser from "body-parser";
+import { Context, Markup, Telegraf, Telegram } from 'telegraf';
+import { Update } from 'typegram';
 
-// @ts-ignore
-import packageInfo from "../package.json";
+const token: string = process.env.BOT_TOKEN as string;
 
-const app = express();
-app.use(bodyParser.json());
+const telegram: Telegram = new Telegram(token);
 
-app.get('/', function (req: any, res: { json: (arg0: { version: any; }) => void; }) {
-    res.json({ version: packageInfo.version });
+const bot: Telegraf<Context<Update>> = new Telegraf(token);
+
+const chatId: string = process.env.CHAT_ID as string;
+
+bot.start((ctx) => {
+    ctx.reply('Hello ' + ctx.from.first_name + '!');
 });
 
-var server = app.listen(process.env.PORT, "0.0.0.0", () => {
-    const host = server.address().address;
-    const port = server.address().port;
-    console.log('Web server started at http://%s:%s', host, port);
+bot.help((ctx) => {
+    ctx.reply('Send /start to receive a greeting');
+    ctx.reply('Send /keyboard to receive a message with a keyboard');
+    ctx.reply('Send /quit to stop the bot');
 });
 
-module.exports = (bot) => {
-    app.post('/' + bot.token, (req, res) => {
-        bot.processUpdate(req.body);
-        res.sendStatus(200);
-    });
-};
+bot.command('quit', (ctx) => {
+    // Explicit usage
+    ctx.telegram.leaveChat(ctx.message.chat.id);
+
+    // Context shortcut
+    ctx.leaveChat();
+});
+
+bot.command('keyboard', (ctx) => {
+    ctx.reply(
+        'Keyboard',
+        Markup.inlineKeyboard([
+            Markup.button.callback('First option', 'first'),
+            Markup.button.callback('Second option', 'second'),
+        ])
+    );
+});
+
+bot.on('text', async (ctx) => {
+    console.log(ctx)
+    ctx.reply(
+        'You choose the ' +
+        (ctx.message.text === 'first' ? 'First' : 'Second') +
+        ' Option!'
+    );
+
+    if (chatId) {
+        await telegram.sendMessage(
+            chatId,
+            'This message was sent without your interaction!'
+        );
+    }
+});
+
+bot.launch();
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
