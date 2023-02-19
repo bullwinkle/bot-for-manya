@@ -11,7 +11,7 @@ bot.on('message', (msg) => {
   bot.sendMessage(chatId, `${process.env.NODE_ENV === 'production' ? 'Remote' : 'Local'} said: ${messageText}`);
 });
 
-bot.startPolling({restart: true, polling: true})
+bot.startPolling()
     .then((e) => {
       console.log('then', e);
     })
