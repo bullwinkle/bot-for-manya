@@ -37,7 +37,7 @@ bot.command('keyboard', (ctx) => {
     );
 });
 
-bot.on('text', (ctx) => {
+bot.on('text', async (ctx) => {
     console.log(ctx)
     ctx.reply(
         'You choose the ' +
@@ -46,7 +46,7 @@ bot.on('text', (ctx) => {
     );
 
     if (chatId) {
-        telegram.sendMessage(
+        await telegram.sendMessage(
             chatId,
             'This message was sent without your interaction!'
         );
